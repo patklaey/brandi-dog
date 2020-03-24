@@ -1,4 +1,11 @@
 # coding=utf-8
+
+NEW = "new"
+CHANGE_CARDS = "change_cards"
+TEAM_BUILDING = "team_building"
+IN_PROGRESS = "in_progress"
+FINISHED = "finished"
+
 PASSWORD_MIN_LENGTH = 8
 
 MAIL_MESSAGES = {
@@ -45,3 +52,12 @@ MAIL_MESSAGES = {
         }
     }
 }
+
+BASIC_SET = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
+JOKER_SET = ["*", "*", "*", "*", "*", "*"]
+INITIAL_SET = []
+# 4 colors each twice
+for x in range(8):
+    INITIAL_SET += BASIC_SET
+
+INITIAL_SET += JOKER_SET
