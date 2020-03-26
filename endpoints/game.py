@@ -46,6 +46,23 @@ def show_game(game_id):
     return jsonify(db_game)
 
 
+@app.route('/games/<int:game_id>', methods=["DELETE"])
+@jwt_required
+def delete_game(game_id):
+    user_id = get_jwt_identity()
+    current_user = User.query.get(user_id)
+    if not current_user or not current_user.admin:
+        return jsonify({"error": {'msg': 'Operation not permitted', 'code': 14}}), 403
+    db_game = Game.query.get(game_id)
+
+    if not db_game:
+        return jsonify({'error': {'msg': 'Game not found', 'code': 16, 'info': game_id}}), 404
+
+    db.session.delete(db_game)
+    db.session.commit()
+    return '', 204
+
+
 @app.route('/games/open')
 @jwt_required
 def show_open_games():
@@ -58,7 +75,7 @@ def show_open_games():
     game_dict = []
     for game in db_games:
         game_dict.append(game.to_dict())
-    return jsonify(game_dict)
+    return jsonify(game_dict), 200
 
 
 @app.route('/games/<int:game_id>/join', methods=["GET"])
