@@ -31,7 +31,7 @@ def create_games():
     new_game = Game(user_id)
     db.session.add(new_game)
     db.session.commit()
-    return '', 201
+    return jsonify({"id": new_game.id}), 201
 
 
 @app.route('/games/<int:game_id>')
@@ -43,7 +43,7 @@ def show_game(game_id):
         return jsonify({"error": {'msg': 'Operation not permitted', 'code': 14}}), 403
     db_game = Game.query.get(game_id)
     # users = copy.deepcopy(db_users)
-    return jsonify(db_game)
+    return jsonify(db_game.to_dict()), 200
 
 
 @app.route('/games/<int:game_id>', methods=["DELETE"])
