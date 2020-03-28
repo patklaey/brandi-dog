@@ -10,6 +10,7 @@ class Round(db.Model):
     initial_player = db.Column(db.Integer, db.ForeignKey('users.id'))
     player_to_play = db.Column(db.Integer, db.ForeignKey('users.id'))
     cards_to_play = db.Column(db.Integer)
+    last_card_played = db.Column(db.String(2))
 
     def __init__(self, game_id, initial_player, card_to_play):
         self.game_id = game_id
@@ -23,6 +24,9 @@ class Round(db.Model):
         if '_sa_instance_state' in dict:
             del dict['_sa_instance_state']
         return dict
+
+    def set_last_card_played(self, card_value):
+        self.last_card_played = card_value
 
     def next_stage(self):
         if self.round_state == NEW:

@@ -64,14 +64,8 @@ def delete_game(game_id):
 
 
 @app.route('/games/open')
-@jwt_required
 def show_open_games():
-    user_id = get_jwt_identity()
-    current_user = User.query.get(user_id)
-    if not current_user:
-        return jsonify({"error": {'msg': 'Operation not permitted', 'code': 14}}), 403
     db_games = Game.query.filter_by(game_state="new")
-    # users = copy.deepcopy(db_users)
     game_dict = []
     for game in db_games:
         game_dict.append(game.to_dict())
@@ -88,6 +82,9 @@ def join_game(game_id):
 
     if game_to_join.players_joined == 4:
         return jsonify({'error': {'msg': 'Game ' + str(game_id) + ' is already full', 'code': 16, 'info': game_id}}), 406
+
+    if user_id in game_to_join.get_players():
+        return jsonify({'error': {'msg': 'You already joined game  ' + str(game_id), 'code': 16, 'info': game_id}}), 409
 
     if game_to_join.join_game(user_id):
         db.session.commit()
@@ -266,7 +263,7 @@ def play_card(game_id):
     if card_value is None:
         return 'You little cheater', 406
 
-    game.last_card_played = card_value
+    current_round.last_card_played = card_value
     setattr(db_set, card, None)
     db_set.reduce_cards_left()
     next_player = get_next_player(game, user_id)

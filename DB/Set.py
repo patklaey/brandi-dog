@@ -35,6 +35,19 @@ class Set(db.Model):
         dict = self.__dict__
         if '_sa_instance_state' in dict:
             del dict['_sa_instance_state']
+        dict["cards"] = []
+        if self.card1:
+            dict["cards"].append({"key": "card1", "value": self.card1})
+        if self.card2:
+            dict["cards"].append({"key": "card2", "value": self.card2})
+        if self.card3:
+            dict["cards"].append({"key": "card3", "value": self.card3})
+        if self.card4:
+            dict["cards"].append({"key": "card4", "value": self.card4})
+        if self.card5:
+            dict["cards"].append({"key": "card5", "value": self.card5})
+        if self.card6:
+            dict["cards"].append({"key": "card6", "value": self.card6})
         return dict
 
     def reduce_cards_left(self):

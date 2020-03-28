@@ -17,7 +17,6 @@ class Game(db.Model):
     player1 = db.Column(db.Integer, db.ForeignKey('users.id'))
     player2 = db.Column(db.Integer, db.ForeignKey('users.id'))
     player3 = db.Column(db.Integer, db.ForeignKey('users.id'))
-    last_card_played = db.Column(db.String(2))
 
     def __init__(self, game_admin):
         self.game_admin = game_admin
@@ -29,6 +28,7 @@ class Game(db.Model):
         dict = self.__dict__
         if '_sa_instance_state' in dict:
             del dict['_sa_instance_state']
+        dict["players"] = [self.player0, self.player1, self.player2, self.player3]
         return dict
 
     def get_players(self):
@@ -78,6 +78,3 @@ class Game(db.Model):
 
     def player_is_in_game(self, player_id):
         return self.get_players().__contains__(player_id)
-
-    def set_last_card_played(self, card_value):
-        self.last_card_played = card_value
