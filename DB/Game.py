@@ -10,6 +10,7 @@ lock = Lock()
 class Game(db.Model):
     __tablename__ = 'games'
     id = db.Column(db.Integer, primary_key=True)
+    game_name = db.Column(db.String(120))
     game_admin = db.Column(db.Integer, db.ForeignKey('users.id'))
     game_state = db.Column(db.String(120))
     players_joined = db.Column(db.Integer)
@@ -18,8 +19,9 @@ class Game(db.Model):
     player2 = db.Column(db.Integer, db.ForeignKey('users.id'))
     player3 = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    def __init__(self, game_admin):
+    def __init__(self, game_name, game_admin):
         self.game_admin = game_admin
+        self.game_name = game_name
         self.game_state = NEW
         self.player0 = game_admin
         self.players_joined = 1

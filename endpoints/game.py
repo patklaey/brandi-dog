@@ -28,7 +28,10 @@ def show_games():
 @jwt_required
 def create_games():
     user_id = get_jwt_identity()
-    new_game = Game(user_id)
+    if not request.json["name"]:
+        return "game name required", 400
+    name = request.json["name"]
+    new_game = Game(name, user_id)
     db.session.add(new_game)
     db.session.commit()
     return jsonify({"id": new_game.id}), 201

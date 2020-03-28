@@ -28,7 +28,7 @@ def addusers():
 
 @app.cli.command()
 def addgame():
-    game = Game(1)
+    game = Game("Test", 1)
     db.session.add(game)
     db.session.commit()
     click.echo("Done")
