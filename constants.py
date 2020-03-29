@@ -11,8 +11,8 @@ PASSWORD_MIN_LENGTH = 8
 MAIL_MESSAGES = {
     'de': {
         'registration' : {
-            'subject': "Registration auf zermatt.patklaey.ch",
-            'message': "Hallo {}\n\nVielen Dank für die Registrierung, dein Konto wird bald aktiviert. Du wirst ein weiteres Mail mit der Aktivierungsbestäting für dein Konto erhalten.\n\nZermatt Reservationen"
+            'subject': "Registration auf brandi.patklaey.ch",
+            'message': "Hallo {}\n\nVielen Dank für die Registrierung. Viel Spass beim Spielen.\n\nBrändi Dog Online"
         },
         'activation' : {
             'subject' : "Konto auf zermatt.patklaey.ch aktiviert",
@@ -25,8 +25,8 @@ MAIL_MESSAGES = {
     },
     'de-be': {
         'registration' : {
-            'subject': "Registration uf zermatt.patklaey.ch",
-            'message': "Hallo {}\n\nMerci viu mau für d Registrierig, dis Konto wird gli aktiviert. Du wirsch es witers Mail mit dr Aktivierigsbestätigung für dis Konto becho.\n\nZermatt Reservatione"
+            'subject': "Registration uf brandi.patklaey.ch",
+            'message': "Hallo {}\n\nMerci viu mau für d Registrierig, viu spass bim spile.\n\nBrändi Dog Online"
         },
         'activation' : {
             'subject' : "Konto uf zermatt.patklaey.ch isch aktiviert",
@@ -39,8 +39,8 @@ MAIL_MESSAGES = {
     },
     'en': {
         'registration' : {
-            'subject': "SignUp on zermatt.patklaey.ch",
-            'message': "Hello {}\n\nThank you for signing up, your account will be activated soon. You will get another mail confirming the account activation.\n\nZermatt Reservations"
+            'subject': "SignUp on brandi.patklaey.ch",
+            'message': "Hello {}\n\nThank you for signing up, enjoy playing the game.\n\nBrandi Dog Online"
         },
         'activation' : {
             'subject' : "Account on zermatt.patklaey.ch activated",
