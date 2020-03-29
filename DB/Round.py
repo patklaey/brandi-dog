@@ -1,5 +1,5 @@
 from main import db
-from constants import NEW,CHANGE_CARDS,IN_PROGRESS,FINISHED
+from constants import NEW, CHANGE_CARDS, IN_PROGRESS, FINISHED
 
 
 class Round(db.Model):
@@ -11,6 +11,7 @@ class Round(db.Model):
     player_to_play = db.Column(db.Integer, db.ForeignKey('users.id'))
     cards_to_play = db.Column(db.Integer)
     last_card_played = db.Column(db.String(2))
+    teams_cards_exchanged = db.Column(db.Integer)
 
     def __init__(self, game_id, initial_player, card_to_play):
         self.game_id = game_id
@@ -18,6 +19,7 @@ class Round(db.Model):
         self.player_to_play = initial_player
         self.round_state = NEW
         self.cards_to_play = card_to_play
+        self.teams_cards_exchanged = 0
 
     def to_dict(self):
         dict = self.__dict__
@@ -35,3 +37,8 @@ class Round(db.Model):
             self.round_state = IN_PROGRESS
         elif self.round_state == IN_PROGRESS:
             self.round_state = FINISHED
+
+    def team_exchanged_cards(self):
+        self.teams_cards_exchanged = self.teams_cards_exchanged + 1
+        if self.teams_cards_exchanged == 2:
+            self.next_stage()

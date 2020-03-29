@@ -7,6 +7,9 @@ from DB.Round import Round
 from DB.Set import Set
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import constants, random
+from threading import Lock
+
+lock = Lock()
 
 
 @app.route('/games')
@@ -169,7 +172,6 @@ def create_teams(game_id):
     db.session.add(team_a)
     db.session.add(team_b)
     db.session.commit()
-    # TODO: start game automatically
     return '', 201
 
 
@@ -237,6 +239,54 @@ def get_current_set(game_id):
         return 'Multiple sets or no set found, something is wrong', 409
     else:
         return jsonify(db_set.to_dict()), 200
+
+
+@app.route('/games/<int:game_id>/currentRound/changecard', methods=["POST"])
+@jwt_required
+def change_card(game_id):
+    with lock:
+        user_id = get_jwt_identity()
+        game = Game.query.get(game_id)
+        if not check_player_in_game(user_id, game):
+            return '', 403
+
+        current_round = game.get_current_round()
+        if not current_round or current_round.round_state != constants.CHANGE_CARDS:
+            return "It's not time to change cards now", 406
+
+        card_to_exchange = request.json["card"]
+        if card_to_exchange not in ["card1", "card2", "card3", "card4", "card5", "card6"]:
+            return 'Invalid card' + card_to_exchange, 400
+
+        db_set = get_current_card_set(game_id, current_round.id, user_id)
+        if db_set is None:
+            return 'Multiple sets or no set found, something is wrong', 409
+
+        card_value = getattr(db_set, card_to_exchange)
+        if card_value is None:
+            return 'You little cheater', 406
+
+        db_teams = Team.query.filter_by(game_id=game_id)
+        for db_team in db_teams:
+            if db_team.player1 == user_id:
+                if db_team.player1_card_to_exchange:
+                    return 'You have already set your card to exchange', 406
+                db_team.player1_card_to_exchange = card_to_exchange
+                if db_team.player2_card_to_exchange:
+                    if not exchange_cards(db_team, current_round):
+                        db.session.rollback()
+                        return 'Cannot exchange cards', 500
+            if db_team.player2 == user_id:
+                if db_team.player2_card_to_exchange:
+                    return 'You have already set your card to exchange', 406
+                db_team.player2_card_to_exchange = card_to_exchange
+                if db_team.player1_card_to_exchange:
+                    if not exchange_cards(db_team, current_round):
+                        db.session.rollback()
+                        return 'Cannot exchange cards', 500
+
+        db.session.commit()
+        return '', 200
 
 
 @app.route('/games/<int:game_id>/currentRound/playcard', methods=["POST"])
@@ -333,7 +383,22 @@ def create_new_round(game, initial_player, cards_to_play):
         new_set = Set(game.id, new_round.id, players[x], players_set[x])
         db.session.add(new_set)
     new_round.next_stage()
-    # For now skip the change cards stage
-    # TODO implement change card stage
-    new_round.next_stage()
     db.session.commit()
+
+
+def exchange_cards(team, current_round):
+    player1_set = db.session.query(Set).filter(Set.round_id == current_round.id, Set.player_id == team.player1).all()
+    player2_set = db.session.query(Set).filter(Set.round_id == current_round.id, Set.player_id == team.player2).all()
+    if len(player1_set) != 1 or len(player2_set) != 1:
+        return False
+
+    player1_card_value = getattr(player1_set[0], team.player1_card_to_exchange)
+    player2_card_value = getattr(player2_set[0], team.player2_card_to_exchange)
+    setattr(player1_set[0], team.player1_card_to_exchange, player2_card_value)
+    setattr(player2_set[0], team.player2_card_to_exchange, player1_card_value)
+    team.player1_card_to_exchange = None
+    team.player2_card_to_exchange = None
+    current_round.team_exchanged_cards()
+    return True
+
+

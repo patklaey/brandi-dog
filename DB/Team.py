@@ -8,6 +8,8 @@ class Team(db.Model):
     player1 = db.Column(db.Integer, db.ForeignKey('users.id'))
     player2 = db.Column(db.Integer, db.ForeignKey('users.id'))
     team_name = db.Column(db.String(120))
+    player1_card_to_exchange = db.Column(db.String(5))
+    player2_card_to_exchange = db.Column(db.String(5))
 
     def __init__(self, game_id, player1, player2, team_name):
         self.game_id = game_id
@@ -19,4 +21,8 @@ class Team(db.Model):
         dict = self.__dict__
         if '_sa_instance_state' in dict:
             del dict['_sa_instance_state']
+        if 'player1_card_to_exchange' in dict:
+            del dict['player1_card_to_exchange']
+        if 'player2_card_to_exchange' in dict:
+            del dict['player2_card_to_exchange']
         return dict
