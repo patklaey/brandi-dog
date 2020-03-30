@@ -37,6 +37,12 @@ class Game(db.Model):
         players = [self.player0, self.player1, self.player2, self.player3]
         return players
 
+    def set_order_of_play(self, order_of_play):
+        self.player0 = order_of_play[0]
+        self.player1 = order_of_play[1]
+        self.player2 = order_of_play[2]
+        self.player3 = order_of_play[3]
+
     def get_current_round(self):
         rounds = db.session.query(Round).filter(Round.game_id == self.id, Round.round_state != FINISHED).all()
         if len(rounds) != 1:

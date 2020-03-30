@@ -171,6 +171,7 @@ def create_teams(game_id):
     team_b = Team(game_id, team_b_json["player1"], team_b_json["player2"], "B")
     db.session.add(team_a)
     db.session.add(team_b)
+    game_to_join.set_order_of_play([team_a_json["player1"], team_b_json["player1"], team_a_json["player2"], team_b_json["player2"]])
     db.session.commit()
     return '', 201
 
@@ -200,7 +201,7 @@ def start_game(game_id):
         return jsonify({'error': {'msg': 'Game ' + str(game_id) + ' is not full yet, cannot start game', 'code': 16, 'info': game_id}}), 406
 
     if game_to_start.set_in_progress():
-        create_new_round(game_to_start, user_id, 6)
+        create_new_round(game_to_start, game_to_start.player0, 6)
         return '', 201
     else:
         db.session.rollback()
@@ -344,7 +345,7 @@ def round_is_over(game_id, current_round):
 def get_next_player(game, user_id):
     players = game.get_players()
     player_index = players.index(user_id)
-    next_player = game.get_players()[(player_index + 1) % len(players)]
+    next_player = players[(player_index + 1) % len(players)]
     return next_player
 
 
