@@ -13,14 +13,15 @@ from constants import MAIL_MESSAGES, PASSWORD_MIN_LENGTH
 def show_users():
     user_id = get_jwt_identity()
     current_user = User.query.get(user_id)
-    if not current_user or not current_user.admin:
-        return jsonify({"error": {'msg': 'Operation not permitted', 'code': 14}}), 403
     db_users = User.query.all()
     users = copy.deepcopy(db_users)
     userDict = []
     for user in users:
-        userDict.append(user.to_dict())
-    return jsonify(userDict)
+        if not current_user or not current_user.admin:
+            userDict.append({"id": user.id, "username": user.username})
+        else:
+            userDict.append(user.to_dict())
+    return jsonify(userDict), 200
 
 
 @app.route('/users/<int:id>', methods=["GET"])

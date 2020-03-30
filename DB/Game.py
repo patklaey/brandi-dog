@@ -58,7 +58,7 @@ class Game(db.Model):
             return True
 
     def set_team_building(self):
-        if self.game_state != NEW or self.players_joined != 4:
+        if not (self.game_state == NEW or self.game_state == TEAM_BUILDING) or self.players_joined != 4:
             return False
         else:
             self.game_state = TEAM_BUILDING
