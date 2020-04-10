@@ -34,7 +34,10 @@ def create_games():
     if not request.json["name"]:
         return "game name required", 400
     name = request.json["name"]
-    new_game = Game(name, user_id)
+    players = 4
+    if request.json["players"]:
+        players = request.json["players"]
+    new_game = Game(name, user_id, players)
     db.session.add(new_game)
     db.session.commit()
     return jsonify({"id": new_game.id}), 201
@@ -86,7 +89,7 @@ def join_game(game_id):
     if not game_to_join:
         return jsonify({'error': {'msg': 'Game not found', 'code': 16, 'info': game_id}}), 404
 
-    if game_to_join.players_joined == 4:
+    if game_to_join.players_joined == game_to_join.number_of_players:
         return jsonify({'error': {'msg': 'Game ' + str(game_id) + ' is already full', 'code': 16, 'info': game_id}}), 406
 
     if user_id in game_to_join.get_players():
@@ -111,7 +114,7 @@ def build_teams(game_id):
     if not game_to_join.game_admin == user_id:
         return jsonify({"error": {'msg': 'Operation not permitted', 'code': 14}}), 403
 
-    if game_to_join.players_joined != 4:
+    if game_to_join.players_joined != game_to_join.number_of_players:
         return jsonify({'error': {'msg': 'Game ' + str(game_id) + ' is not full, cannot build teams yet', 'code': 16, 'info': game_id}}), 406
 
     if game_to_join.set_team_building():
@@ -157,6 +160,8 @@ def create_teams(game_id):
 
     team_a_json = request.json["teamA"]
     team_b_json = request.json["teamB"]
+    if game_to_join.number_of_players == 6 and not request.json["teamC"]:
+        return jsonify({'error': {'msg': 'Game is for 6 players but only two teams provided', 'code': 24}}), 400
 
     if not team_a_json["player1"] or not team_a_json["player2"]:
         return jsonify({'error': {'msg': 'Team A not complete', 'code': 24}}), 400
@@ -169,9 +174,22 @@ def create_teams(game_id):
 
     team_a = Team(game_id, team_a_json["player1"], team_a_json["player2"], "A")
     team_b = Team(game_id, team_b_json["player1"], team_b_json["player2"], "B")
+    if game_to_join.number_of_players == 6:
+        team_c_json = request.json["teamC"]
+        if not team_c_json["player1"] or not team_c_json["player2"]:
+            return jsonify({'error': {'msg': 'Team C not complete', 'code': 24}}), 400
+        if team_c_json["player1"] == team_c_json["player2"]:
+            return jsonify({'error': {'msg': 'Team C players are not unique', 'code': 24}}), 400
+        team_c = Team(game_id, team_c_json["player1"], team_c_json["player2"], "C")
+        db.session.add(team_c)
+
     db.session.add(team_a)
     db.session.add(team_b)
-    game_to_join.set_order_of_play([team_a_json["player1"], team_b_json["player1"], team_a_json["player2"], team_b_json["player2"]])
+
+    if game_to_join.number_of_players == 4:
+        game_to_join.set_order_of_play([team_a_json["player1"], team_b_json["player1"], team_a_json["player2"], team_b_json["player2"]])
+    else:
+        game_to_join.set_order_of_play([team_a_json["player1"], team_b_json["player1"], team_c_json["player1"], team_a_json["player2"], team_b_json["player2"], team_c_json["player2"]])
     db.session.commit()
     return '', 201
 
@@ -197,7 +215,7 @@ def start_game(game_id):
     if not game_to_start.game_admin == user_id:
         return jsonify({"error": {'msg': 'Operation not permitted', 'code': 14}}), 403
 
-    if game_to_start.players_joined != 4:
+    if game_to_start.players_joined != game_to_start.number_of_players:
         return jsonify({'error': {'msg': 'Game ' + str(game_id) + ' is not full yet, cannot start game', 'code': 16, 'info': game_id}}), 406
 
     if game_to_start.set_in_progress():

@@ -40,5 +40,6 @@ class Round(db.Model):
 
     def team_exchanged_cards(self):
         self.teams_cards_exchanged = self.teams_cards_exchanged + 1
-        if self.teams_cards_exchanged == 2:
+        game = Game.query.get(self.game_id)
+        if self.teams_cards_exchanged == (game.number_of_players / 2):
             self.next_stage()

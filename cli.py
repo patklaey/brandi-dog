@@ -27,6 +27,15 @@ def addusers():
 
 
 @app.cli.command()
+def addadditionalusers():
+    player3 = User('player3', 'password', 'player3@247.ch', "en", False, True)
+    player4 = User('player4', 'password', 'player4@247.ch', "en", False, True)
+    db.session.add(player3)
+    db.session.add(player4)
+    db.session.commit()
+    click.echo("Done")
+
+@app.cli.command()
 def addgame():
     game = Game("Test", 1)
     db.session.add(game)
