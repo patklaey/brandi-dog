@@ -393,6 +393,7 @@ def check_player_in_game(player_id, game):
 
 
 def create_new_round(game, initial_player, cards_to_play):
+    ensure_teams_clean(game.id)
     new_round = Round(game.id, initial_player, cards_to_play)
     db.session.add(new_round)
     db.session.commit()
@@ -418,6 +419,13 @@ def exchange_cards(team, current_round):
     team.player1_card_to_exchange = None
     team.player2_card_to_exchange = None
     current_round.team_exchanged_cards()
+    db.session.commit()
     return True
 
 
+def ensure_teams_clean(game_id):
+    db_teams = Team.query.filter_by(game_id=game_id)
+    for team in db_teams:
+        team.player1_card_to_exchange = None
+        team.player2_card_to_exchange = None
+    db.session.commit()

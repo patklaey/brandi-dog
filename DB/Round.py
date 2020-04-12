@@ -1,4 +1,4 @@
-from main import db
+from main import db, Game
 from constants import NEW, CHANGE_CARDS, IN_PROGRESS, FINISHED
 
 
