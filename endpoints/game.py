@@ -1,9 +1,8 @@
 from main import app, db
 from flask import jsonify, request
-from DB.Game import Game
+from DB.Game import Game, Round
 from DB.User import User
 from DB.Team import Team
-from DB.Round import Round
 from DB.Set import Set
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import constants, random

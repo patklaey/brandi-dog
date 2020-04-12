@@ -17,7 +17,6 @@ migrate = Migrate(app, db)
 jwt = JWTManager(app)
 
 from DB.User import User
-from DB.Game import Game
 from endpoints import user, game
 
 

@@ -65,4 +65,5 @@ def reset(ctx):
     ctx.invoke(initdb)
     ctx.invoke(addusers)
     ctx.invoke(addgame)
+    ctx.invoke(addadditionalusers)
     click.echo("All Done")
